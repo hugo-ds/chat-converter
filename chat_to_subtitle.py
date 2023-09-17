@@ -20,7 +20,7 @@ from rich import print
 # Validate start time and end time parameters.
 # If end time was not specified, do not check time range. 
 # Include all comments from start time to video end.
-def validate_time(ctx, param, value):
+def validate_time(ctx, param, value):   
     try:
         splitted = value.split(':')
         
@@ -89,8 +89,10 @@ def load_json_file(input_file):
     try: 
         with open(input_file, mode='r', encoding="utf8") as f:
             return json.load(f)
+            
     except ValueError:
         sys.exit(f'The {input_file} is not a json file.')
+        
     except FileNotFoundError as e:
         sys.exit(f'File {input_file} not found. Confirm the file name.')
 
@@ -140,10 +142,7 @@ def load_ban_file(ban_file):
 
 
 # Check if the comment time is out of range (between start and end time).
-def is_out_of_range(comment, start_time, end_time):
-    if len(comment) == 0:
-        return True
-    
+def is_out_of_range(comment, start_time, end_time):  
     time = comment['content_offset_seconds']
     
     if time < start_time:
@@ -207,6 +206,11 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
     remove_words, banned_words, banned_users = load_ban_file(ban_file)
     
     for comment in comments:
+        #
+        # TODO: validate comment here. Fields exist, etc.
+        #
+    
+    
         if is_out_of_range(comment, start_time_in_seconds, end_time_in_seconds):
             # skip out of range comment.
             continue
@@ -229,7 +233,7 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
         
         i = len(items) # Processed comments quantity.
         
-        # Load comment time and adjust considering the start time.
+        # Load comment time and adjust it considering the start time.
         time = comment['content_offset_seconds'] - start_time_in_seconds
         
         # TODO: Implement better comments display algorythm
