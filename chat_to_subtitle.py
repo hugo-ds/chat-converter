@@ -107,6 +107,38 @@ def load_file(input_file):
         sys.exit(f'File {input_file} not found. Confirm the file name')
 
 
+# Load the ban file and returns each list.
+# {
+#     "remove_words": [], # ban the word only
+#     "banned_word": [], # ban the whole comment
+#     "banned_user": [], # ban the user
+#     "banned_critical_word": [], # ban the comment and the user
+# }
+#
+def load_ban_file(ban_file):
+    if ban_file == None:
+        return [], [], [], []
+
+    dicts = load_json_file(ban_file)
+    
+    try:
+        # List of words to remove from a comment. (Delete the word only)
+        remove_words = dicts["word_only"]
+
+        # List of words. (Delete whole comment)
+        banned_words = dicts["whole_comment"] 
+        
+        # List of user ids and names.
+        banned_users = dicts["user"] 
+        
+        # List of words that bans also the user. (Delete whole comment)
+        banned_critical_word = dicts["critical_word"] 
+        
+        return remove_words, banned_words, banned_users, banned_critical_word
+
+    except KeyError as e:
+        print(e)
+
 # Load the ban file with a list of dictionaries.
 #[
 #	{
@@ -116,29 +148,29 @@ def load_file(input_file):
 #	},
 #]
 #
-def load_ban_file(ban_file):
-    if ban_file == None:
-        return [], [], []
+# def load_ban_file(ban_file):
+    # if ban_file == None:
+        # return [], [], []
 
-    dicts = load_json_file(ban_file)['data']
-    remove_words = [] # List of words. (Delete the word only)
-    banned_words = [] # List of words. (Delete whole comment)
-    banned_users = [] # List of user ids and names.
+    # dicts = load_json_file(ban_file)['data']
+    # remove_words = [] # List of words. (Delete the word only)
+    # banned_words = [] # List of words. (Delete whole comment)
+    # banned_users = [] # List of user ids and names.
     
-    for dict in dicts:
-        ban_mode = dict['ban_mode']
-        target = dict['target']
+    # for dict in dicts:
+        # ban_mode = dict['ban_mode']
+        # target = dict['target']
         
-        if ban_mode == 'word':
-            remove_words.append(target)
+        # if ban_mode == 'word':
+            # remove_words.append(target)
             
-        elif ban_mode == 'comment':
-            banned_words.append(target)
+        # elif ban_mode == 'comment':
+            # banned_words.append(target)
             
-        elif ban_mode == 'user':
-            banned_users.append(target)
+        # elif ban_mode == 'user':
+            # banned_users.append(target)
     
-    return remove_words, banned_words, banned_users
+    # return remove_words, banned_words, banned_users
 
 
 # Check if the comment time is out of range (between start and end time).
@@ -203,7 +235,7 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
     
     # List of user names, ids and comments that are banned.
     # If ban file was not passed as command line argument, return empty lists.
-    remove_words, banned_words, banned_users = load_ban_file(ban_file)
+    remove_words, banned_words, banned_users, banned_critical_word = load_ban_file(ban_file)
     
     for comment in comments:
         #

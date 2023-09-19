@@ -1,0 +1,9 @@
+{
+   "user": ["1", "2", "3"],
+   
+   "word_only": ["abc", "[a]+", "BibleThump","NotLikeThis"],
+   
+   "whole_comment": ["aaa", "bbb"],
+   
+   "critical_word": ["boring"]
+}
