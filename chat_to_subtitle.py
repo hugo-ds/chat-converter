@@ -109,10 +109,10 @@ def load_file(input_file):
 
 # Load the ban file and returns each list.
 # {
-#     "remove_words": [], # ban the word only
-#     "banned_word": [], # ban the whole comment
-#     "banned_user": [], # ban the user
-#     "banned_critical_word": [], # ban the comment and the user
+#     "word_only": [], # ban the word only
+#     "whole_comment": [], # ban the whole comment
+#     "user": [], # ban the user
+#     "critical_word": [], # ban the comment and the user
 # }
 #
 def load_ban_file(ban_file):
@@ -132,46 +132,18 @@ def load_ban_file(ban_file):
         banned_users = dicts["user"] 
         
         # List of words that bans also the user. (Delete whole comment)
-        banned_critical_word = dicts["critical_word"] 
+        banned_critical_word = dicts["critical_word"]
+        
+        if (not isinstance(remove_words, list) or
+            not isinstance(banned_words, list) or
+            not isinstance(banned_users, list) or
+            not isinstance(banned_critical_word, list)):
+                sys.exit("All values must be in lists.")
         
         return remove_words, banned_words, banned_users, banned_critical_word
 
     except KeyError as e:
-        print(e)
-
-# Load the ban file with a list of dictionaries.
-#[
-#	{
-#		'ban_mode': 'word, comment or user',
-#		'target': 'word(regex), user id or user name',
-#		'is_user_banned': true or false # Not implemented
-#	},
-#]
-#
-# def load_ban_file(ban_file):
-    # if ban_file == None:
-        # return [], [], []
-
-    # dicts = load_json_file(ban_file)['data']
-    # remove_words = [] # List of words. (Delete the word only)
-    # banned_words = [] # List of words. (Delete whole comment)
-    # banned_users = [] # List of user ids and names.
-    
-    # for dict in dicts:
-        # ban_mode = dict['ban_mode']
-        # target = dict['target']
-        
-        # if ban_mode == 'word':
-            # remove_words.append(target)
-            
-        # elif ban_mode == 'comment':
-            # banned_words.append(target)
-            
-        # elif ban_mode == 'user':
-            # banned_users.append(target)
-    
-    # return remove_words, banned_words, banned_users
-
+        sys.exit("The ban file does not contain all required keys.\n The file must contain: 'word_only', 'whole_comment', 'user', and 'critical_word' keys.")
 
 # Check if the comment time is out of range (between start and end time).
 def is_out_of_range(comment, start_time, end_time):  
