@@ -1,12 +1,13 @@
 import unittest
 import chat_to_subtitle
 import click
+from unittest.mock import patch
 
-class TestChatToAss(unittest.TestCase):
+class TestChatToSubtitle(unittest.TestCase):
 
-    #===================================================
-    #  validate_time
-    #===================================================
+#===================================================
+#  validate_time
+#===================================================
     
     def test_validate_time_when_value_passed_is_well_formed_returns_false(self):
         ctx = None
@@ -79,6 +80,67 @@ class TestChatToAss(unittest.TestCase):
         
         with self.assertRaises(click.exceptions.BadParameter):
             chat_to_subtitle.validate_time(ctx, param, value)
+            
+            
+    #===================================================
+    #  load_ban_file
+    #===================================================
+    def test_load_ban_file_when_banfile_is_none_returns_empty_lists(self):
+        ban_file = None
+        result = chat_to_subtitle.load_ban_file(ban_file)
+        
+        self.assertEqual(([], [], [], []), result)
+        
+    def test_load_ban_file_when_standard_ban_file_returns_standard_lists(self):
+        ban_file = "ban.json"
+        mock_dict = {
+           "word_only": ["abc", "[a]+", "BibleThump","NotLikeThis"],
+           
+           "whole_comment": ["aaa", "bbb"],
+           
+           "user": ["1", "2", "3"],
+           
+           "critical_word": ["boring"]
+        }
+        
+        with patch('chat_to_subtitle.load_json_file', return_value=mock_dict):
+            result = chat_to_subtitle.load_ban_file(ban_file)
+            
+            self.assertEqual((["abc", "[a]+", "BibleThump","NotLikeThis"], ["aaa", "bbb"], ["1", "2", "3"], ["boring"]), result)
+
+    def test_load_ban_file_when_loaded_dictionary_misses_a_key_raise_SystemExit(self):
+        ban_file = "ban.json"
+        # No "critical_word" key in mock_dick.
+        mock_dict = {
+           "word_only": ["abc", "[a]+", "BibleThump","NotLikeThis"],
+           
+           "whole_comment": ["aaa", "bbb"],
+           
+           "user": ["1", "2", "3"]
+        }
+        
+        with patch('chat_to_subtitle.load_json_file', return_value=mock_dict):
+            with self.assertRaises(SystemExit):
+                chat_to_subtitle.load_ban_file(ban_file)
+                
+    def test_load_ban_file_when_loaded_dictionary_contains_non_list_value_raise_SystemExit(self):
+        ban_file = "ban.json"
+        # No "critical_word" key in mock_dick.
+        mock_dict = {
+           "word_only": ["abc", "[a]+", "BibleThump","NotLikeThis"],
+           
+           "whole_comment": ["aaa", "bbb"],
+           
+           "user": ["1", "2", "3"],
+           
+           "critical_word": "word"
+        }
+        
+        with patch('chat_to_subtitle.load_json_file', return_value=mock_dict):
+            with self.assertRaises(SystemExit):
+                chat_to_subtitle.load_ban_file(ban_file)
+    
+
 
     #===================================================
     #  is_out_of_range
