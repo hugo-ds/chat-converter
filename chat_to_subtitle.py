@@ -145,6 +145,7 @@ def load_ban_file(ban_file):
     except KeyError as e:
         sys.exit("The ban file does not contain all required keys.\n The file must contain: 'word_only', 'whole_comment', 'user', and 'critical_word' keys.")
 
+
 # Check if the comment time is out of range (between start and end time).
 def is_out_of_range(comment, start_time, end_time):  
     time = comment['content_offset_seconds']
@@ -182,8 +183,8 @@ def is_banned_user(comment, banned_users):
 
 
 # Remove words from a comment.
-def clean_up_comment(comment, remove_words):
-    message = comment['message']['body']
+def clean_up_comment(message, remove_words):
+    # message = comment['message']['body']
     
     if len(remove_words) == 0:
         return message
@@ -192,6 +193,17 @@ def clean_up_comment(comment, remove_words):
         message = re.sub(remove_word, '', message)
         
     return message.strip()
+
+
+# Text modifications.
+def substitute_text(comment):
+    # Substitute '.' to one white space ('.' causes file loading error)
+    message = comment['message']['body'].replace('.', ' ')
+    
+    # Convert 4 or more w's to www.
+    message = re.sub('[wWｗＷ]{4,}', 'www', message)
+
+    return message
 
 
 # Convert a list: [hour, minutes, seconds] to seconds.
@@ -223,12 +235,12 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
             # Delete a comment of a banned user or containing a banned word.
             deleted_comment_counter = deleted_comment_counter + 1
             continue
-        
-        # Substitute . to white space (. causes file loading error)
-        message = comment['message']['body'].replace('.', ' ')
+               
+        # Substitute the comment text partially.
+        message = substitute_text(comment)
         
         # Delete undesired words from a comment.
-        message = clean_up_comment(comment, remove_words)
+        message = clean_up_comment(message, remove_words)
         
         if len(message) == 0:
             # Skip empty comment.
@@ -260,7 +272,7 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
     print(f'Comments deleted: {deleted_comment_counter}')
     
     return items
-    
+
 
 # Convert items dictionary and write as subtitle file.
 def output_as_subtitle(items, play_res_x, play_res_y,  font_size, output_file, visible_time):
