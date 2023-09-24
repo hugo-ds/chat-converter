@@ -212,8 +212,7 @@ class TestChatToSubtitle(unittest.TestCase):
         self.assertEqual(False, result)
         
     #===================================================
-    #  is_banned_user
-    #===================================================       
+    #  is_banned_user    #===================================================       
     def test_is_banned_user_when_banned_users_is_empty_returns_false(self):
         comment = {
             'commenter': {
@@ -240,6 +239,29 @@ class TestChatToSubtitle(unittest.TestCase):
             }}
         result = chat_to_subtitle.is_banned_user(comment, ['id-A'])
         self.assertEqual(True, result)
+        
+    #===================================================
+    #  clean_up_comment    #=================================================== 
+        
+    #===================================================
+    #  substitute_text    #=================================================== 
+    def test_substitute_text_when_word_with_periods_are_passed_returns_word_with_spaces(self):
+        comment = {
+            'message': {
+                'body': ".a.b.c.d."
+            }
+        }
+        result = chat_to_subtitle.substitute_text(comment)
+        self.assertEqual(" a b c d ", result)
+        
+    def test_substitute_text_when_lots_of_ws_returns_www(self):
+        comment = {
+            'message': {
+                'body': "wwwwWWWWｗｗｗｗＷＷＷＷ"
+            }
+        }
+        result = chat_to_subtitle.substitute_text(comment)
+        self.assertEqual("www", result)
 
     #===================================================
     #  convert_hms_to_seconds
