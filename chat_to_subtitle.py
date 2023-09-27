@@ -44,6 +44,16 @@ def validate_time(ctx, param, value):
         raise click.BadParameter("The format must be 'h:m:s'")
 
 
+# Return the style name that corresponds the user input.
+def get_style(ctx, param, value):
+    if value == 'White':
+        return 'Danmaku2ASS'
+    elif value == 'Blue':
+        return 'danmakuBlue'
+    elif value == 'Red':
+        return 'danmakuRed'
+
+
 @click.command()
 @click.option('--input-file', '-i', default='chat.json', show_default=True, required=True, help='The input file: chat file in json format.')
 @click.option('--output-file', '-o', default='chat.ass', show_default=True, help='The output file: chat subtitle in ass format.')
@@ -54,7 +64,8 @@ def validate_time(ctx, param, value):
 @click.option('--play-res-y', '-y', type=click.IntRange(1), default=480, help='Comment player\'s y resolution.')
 @click.option('--font-size', '-f', type=click.IntRange(1), default=36, help='Font size of comments.')
 @click.option('--visible-time', '-v', type=click.IntRange(1), default=7, help='Time in seconds that comments stay visibles.')
-def convert_chat(input_file, output_file, ban_file, start_time, end_time, play_res_x, play_res_y, font_size, visible_time):
+@click.option('--comment-color', '-c', type=click.Choice(['White', 'Blue', 'Red'], case_sensitive=False), default='White', callback=get_style, help='Color of comments displayed.')
+def convert_chat(input_file, output_file, ban_file, start_time, end_time, play_res_x, play_res_y, font_size, visible_time, comment_color):
 
     # Load the input file (json with comments).
     data = load_json_file(input_file)
@@ -73,15 +84,14 @@ def convert_chat(input_file, output_file, ban_file, start_time, end_time, play_r
     start_time_in_seconds > end_time_in_seconds):
         sys.exit(f'Start time {start_time_in_seconds}s is greater than end time {end_time_in_seconds}s. Change one of them.')
 
-    print(f'Comments before: {len(comments)}')
-    print(f'start_time: {start_time}')
-    print(f'end_time {end_time}')
+    print(f'Comments before: {len(comments)}')   
+    print(f'Output range: {start_time[0]}:{start_time[1]}:{start_time[2]} ~ {end_time[0]}:{end_time[1]}:{end_time[2]}')
     
     # Process each comment and return formatted list.
     items = process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_file, play_res_y, font_size)
 
     # Write comments in the items list to subtitle file.
-    output_as_subtitle(items, play_res_x, play_res_y,  font_size, output_file, visible_time)
+    output_as_subtitle(items, play_res_x, play_res_y,  font_size, output_file, visible_time, comment_color)
 
 
 # Load a json file (with comments data).
@@ -95,16 +105,6 @@ def load_json_file(input_file):
         
     except FileNotFoundError as e:
         sys.exit(f'File {input_file} not found. Confirm the file name.')
-
-
-# Read a file and return a list of lines.
-def load_file(input_file):       
-    try:
-        with open(input_file, mode='r', encoding="utf8") as f:
-            lines = f.readlines()
-        return [s.strip() for s in lines]
-    except FileNotFoundError as e:
-        sys.exit(f'File {input_file} not found. Confirm the file name')
 
 
 # Load the ban file and returns each list.
@@ -275,7 +275,7 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
 
 
 # Convert items dictionary and write as subtitle file.
-def output_as_subtitle(items, play_res_x, play_res_y,  font_size, output_file, visible_time):
+def output_as_subtitle(items, play_res_x, play_res_y,  font_size, output_file, visible_time, comment_color):
     # Color: &H33BBGGRR
     s = f"""[Script Info]
 ScriptType: v4.00+
@@ -317,7 +317,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             x2 = font_size * len(message) * -1 # Comment's length (display speed)
 
             # Write a comment to output file.
-            f.write(f'Dialogue: 2,{td1},{td2},Danmaku2ASS,,0000,0000,0000,,{{{move_command}(854,{str(y)},{str(x2)},{str(y)})}}{message}{newline}')
+            f.write(f'Dialogue: 2,{td1},{td2},{comment_color},,0000,0000,0000,,{{{move_command}(854,{str(y)},{str(x2)},{str(y)})}}{message}{newline}')
 
 
 if __name__ == '__main__':
