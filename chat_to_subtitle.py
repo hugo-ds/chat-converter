@@ -4,18 +4,18 @@
 
 # Todo:
 # - Exception handling (File not found,...)
+# - Add tests (use pytest)
 # - Add styles to comments (color, big, static)
-# - Add tests
 # - Divide chat: per 3 hour, or eg. 3分割 指定時間でコメント分割
 # - Smaller functions
 # - Implement better comments display algorythm
-# - Ban a user that posted specific comment
 # - Make a class of arguments?
 
 
 import json, os, sys, re, click
 from datetime import timedelta
 from rich import print
+
 
 # Validate start time and end time parameters.
 # If end time was not specified, do not check time range. 
@@ -46,11 +46,15 @@ def validate_time(ctx, param, value):
 
 # Return the style name that corresponds the user input.
 def get_style(ctx, param, value):
-    if value == 'White':
-        return 'Danmaku2ASS'
-    elif value == 'Blue':
+    color = value.lower()
+    
+    if color == 'white':
+        return 'danmakuWhite'
+        
+    elif color == 'blue':
         return 'danmakuBlue'
-    elif value == 'Red':
+        
+    elif color == 'red':
         return 'danmakuRed'
 
 
@@ -84,8 +88,8 @@ def convert_chat(input_file, output_file, ban_file, start_time, end_time, play_r
     start_time_in_seconds > end_time_in_seconds):
         sys.exit(f'Start time {start_time_in_seconds}s is greater than end time {end_time_in_seconds}s. Change one of them.')
 
-    print(f'Comments before: {len(comments)}')   
     print(f'Output range: {start_time[0]}:{start_time[1]}:{start_time[2]} ~ {end_time[0]}:{end_time[1]}:{end_time[2]}')
+    print(f'Comments before: {len(comments)}')
     
     # Process each comment and return formatted list.
     items = process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_file, play_res_y, font_size)
@@ -289,7 +293,7 @@ YCbCr Matrix: TV.601
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Danmaku2ASS, sans-serif, {font_size}, &H33FFFFFF, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
+Style: danmakuWhite, sans-serif, {font_size}, &H33FFFFFF, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
 Style: danmakuBlue, sans-serif, {font_size}, &H33FF0000, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
 Style: danmakuRed, sans-serif, {font_size}, &H330000FF, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
 

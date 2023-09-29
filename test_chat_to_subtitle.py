@@ -8,7 +8,6 @@ class TestChatToSubtitle(unittest.TestCase):
 #===================================================
 #  validate_time
 #===================================================
-    
     def test_validate_time_when_value_passed_is_well_formed_returns_false(self):
         ctx = None
         param = None
@@ -80,11 +79,39 @@ class TestChatToSubtitle(unittest.TestCase):
         
         with self.assertRaises(click.exceptions.BadParameter):
             chat_to_subtitle.validate_time(ctx, param, value)
+
+
+#===================================================
+#  get_style
+#===================================================       
+    def test_get_style_when_White_is_passed_returns_danmakuWhite(self):
+        ctx = None
+        param = None
+        value = 'White'
+        
+        result = chat_to_subtitle.get_style(ctx, param, value)
+        self.assertEqual('danmakuWhite', result)
+        
+    def test_get_style_when_BLUE_is_passed_returns_danmakuBlue(self):
+        ctx = None
+        param = None
+        value = 'BLUE'
+        
+        result = chat_to_subtitle.get_style(ctx, param, value)
+        self.assertEqual('danmakuBlue', result)
+        
+    def test_get_style_when_red_is_passed_returns_danmakuRed(self):
+        ctx = None
+        param = None
+        value = 'red'
+        
+        result = chat_to_subtitle.get_style(ctx, param, value)
+        self.assertEqual('danmakuRed', result)
+       
             
-            
-    #===================================================
-    #  load_ban_file
-    #===================================================
+#===================================================
+#  load_ban_file
+#===================================================
     def test_load_ban_file_when_banfile_is_none_returns_empty_lists(self):
         ban_file = None
         result = chat_to_subtitle.load_ban_file(ban_file)
@@ -141,10 +168,9 @@ class TestChatToSubtitle(unittest.TestCase):
                 chat_to_subtitle.load_ban_file(ban_file)
     
 
-
-    #===================================================
-    #  is_out_of_range
-    #===================================================
+#===================================================
+#  is_out_of_range
+#===================================================
     def test_is_out_of_range_when_comment_time_is_inside_of_range_returns_false(self):
         comment = {
             'content_offset_seconds': 50
@@ -180,9 +206,10 @@ class TestChatToSubtitle(unittest.TestCase):
         result = chat_to_subtitle.is_out_of_range(comment, 20, 100)
         self.assertEqual(False, result)       
 
-    #===================================================
-    #  is_banned_comment
-    #===================================================
+
+#===================================================
+#  is_banned_comment
+#===================================================
     def test_is_banned_comment_when_banned_words_is_empty_returns_false(self):
         comment = {
             'message': {
@@ -211,8 +238,9 @@ class TestChatToSubtitle(unittest.TestCase):
         result = chat_to_subtitle.is_banned_comment(comment, ['BBB'])
         self.assertEqual(False, result)
         
-    #===================================================
-    #  is_banned_user    #===================================================       
+        
+#===================================================
+#  is_banned_user    #===================================================       
     def test_is_banned_user_when_banned_users_is_empty_returns_false(self):
         comment = {
             'commenter': {
@@ -239,12 +267,14 @@ class TestChatToSubtitle(unittest.TestCase):
             }}
         result = chat_to_subtitle.is_banned_user(comment, ['id-A'])
         self.assertEqual(True, result)
-        
-    #===================================================
-    #  clean_up_comment    #=================================================== 
-        
-    #===================================================
-    #  substitute_text    #=================================================== 
+
+
+#===================================================
+#  clean_up_comment    #=================================================== 
+
+
+#===================================================
+#  substitute_text    #=================================================== 
     def test_substitute_text_when_word_with_periods_are_passed_returns_word_with_spaces(self):
         comment = {
             'message': {
@@ -263,10 +293,10 @@ class TestChatToSubtitle(unittest.TestCase):
         result = chat_to_subtitle.substitute_text(comment)
         self.assertEqual("www", result)
 
-    #===================================================
-    #  convert_hms_to_seconds
-    #=================================================== 
-    
+
+#===================================================
+#  convert_hms_to_seconds
+#=================================================== 
     def test_convert_hms_to_seconds_when_time_is_zero_returns_zero(self):
         hms = ['0', '0', '0']
         result = chat_to_subtitle.convert_hms_to_seconds(hms)
