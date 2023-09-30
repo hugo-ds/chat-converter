@@ -107,6 +107,14 @@ class TestChatToSubtitle(unittest.TestCase):
         
         result = chat_to_subtitle.get_style(ctx, param, value)
         self.assertEqual('danmakuRed', result)
+        
+    def test_get_style_when_green_is_passed_returns_danmakuGreen(self):
+        ctx = None
+        param = None
+        value = 'grEEn'
+        
+        result = chat_to_subtitle.get_style(ctx, param, value)
+        self.assertEqual('danmakuGreen', result)
        
             
 #===================================================
