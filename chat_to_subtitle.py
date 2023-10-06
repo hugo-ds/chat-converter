@@ -56,9 +56,6 @@ def get_style(ctx, param, value):
         
     elif color == 'red':
         return 'danmakuRed'
-        
-    elif color == 'green':
-        return 'danmakuGreen'
 
 
 @click.command()
@@ -71,7 +68,7 @@ def get_style(ctx, param, value):
 @click.option('--play-res-y', '-y', type=click.IntRange(1), default=480, help='Comment player\'s y resolution.')
 @click.option('--font-size', '-f', type=click.IntRange(1), default=36, help='Font size of comments.')
 @click.option('--visible-time', '-v', type=click.IntRange(1), default=7, help='Time in seconds that comments stay visibles.')
-@click.option('--comment-color', '-c', type=click.Choice(['White', 'Blue', 'Red', 'Green'], case_sensitive=False), default='White', callback=get_style, help='Color of comments displayed.')
+@click.option('--comment-color', '-c', type=click.Choice(['White', 'Blue', 'Red'], case_sensitive=False), default='White', callback=get_style, help='Color of comments displayed.')
 def convert_chat(input_file, output_file, ban_file, start_time, end_time, play_res_x, play_res_y, font_size, visible_time, comment_color):
 
     # Load the input file (json with comments).
@@ -172,7 +169,7 @@ def is_banned_comment(comment, banned_words):
         return False
 
     for banned_word in banned_words:
-        if banned_word in comment['message']['body']:
+        if (re.search(banned_word, comment['message']['body'])):
             return True
 
     return False
@@ -233,12 +230,11 @@ def process_comments(comments, start_time_in_seconds, end_time_in_seconds, ban_f
         # TODO: validate comment here. Fields exist, etc.
         #
     
-    
         if is_out_of_range(comment, start_time_in_seconds, end_time_in_seconds):
             # skip out of range comment.
             continue
 
-        if (is_banned_comment(comment, banned_users) or is_banned_user(comment, banned_words)):
+        if (is_banned_comment(comment, banned_words) or is_banned_user(comment, banned_users)):
             # Delete a comment of a banned user or containing a banned word.
             deleted_comment_counter = deleted_comment_counter + 1
             continue
@@ -299,7 +295,6 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: danmakuWhite, sans-serif, {font_size}, &H33FFFFFF, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
 Style: danmakuBlue, sans-serif, {font_size}, &H33FF0000, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
 Style: danmakuRed, sans-serif, {font_size}, &H330000FF, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
-Style: danmakuGreen, sans-serif, {font_size}, &H3300FF00, &H33FFFFFF, &H33000000, &H33000000, 0, 0, 0, 0, 100, 100, 0.00, 0.00, 1, 1, 0, 7, 0, 0, 0, 0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
